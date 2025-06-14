@@ -1,4 +1,3 @@
 Follow these steps:
-npm install
-
-Run with "npm run dev" on terminal.
+1. npm install
+2. npm run dev
