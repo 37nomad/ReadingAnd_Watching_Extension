@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.79",
+    "type": "module"
+  }
+}
