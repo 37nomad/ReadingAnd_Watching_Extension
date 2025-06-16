@@ -3,17 +3,17 @@
     "name": "Smart Tracker",
     "version": "1.0",
     "description": "Scrape article and video content from web pages.",
-    "permissions": ["scripting", "tabs"],
+    "permissions": ["scripting", "tabs", "downloads", "storage"],
     "host_permissions": ["<all_urls>"],
+    "background": {
+      "service_worker": "background.js"
+    },
     "content_scripts": [
       {
         "matches": ["<all_urls>"],
         "js": ["content.js"],
         "run_at": "document_idle"
       }
-    ],
-    "action": {
-      "default_popup": "popup.html"
-    }
+    ]
   }
   

@@ -47,6 +47,11 @@ class EnhancedContentScraper {
         qualityScore: result.qualityScore,
         contentPreview: content.substring(0, 100) + '...'
       });
+
+      chrome.runtime.sendMessage({
+        action: 'saveContent',
+        data: result
+      });      
   
       return result;
     }
