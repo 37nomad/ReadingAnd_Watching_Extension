@@ -438,3 +438,32 @@ class EnhancedContentScraper {
   
   // Make scraper available globally
   window.scraper = scraper;
+
+  // SPA handling using MutationObserver (YouTube specific)
+(function observeYouTubeNavigation() {
+  let lastUrl = location.href;
+
+  const observer = new MutationObserver(async () => {
+    const currentUrl = location.href;
+    if (currentUrl !== lastUrl) {
+      lastUrl = currentUrl;
+
+      // Wait briefly to allow content to load
+      console.log('🔄 Detected YouTube SPA navigation. Waiting for content to load...');
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      const content = await scraper.extractContent();
+      if (content) {
+        console.log('🔄 Re-extracted content after navigation:', content);
+        window.extractedContent = content;
+      }
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  console.log('🎯 YouTube SPA navigation observer activated');
+})();
