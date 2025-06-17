@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Browsing & Video Tracker",
   "version": "1.0",
-  "description": "Track visited websites and watched videos locally.",
+  "description": "Track visited websites and watched videos, with user accounts.",
   "permissions": [
     "tabs",
     "history",
@@ -10,7 +10,8 @@
     "storage"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "<all_urls>",
+    "http://localhost:5000/*" 
   ],
   "background": {
     "service_worker": "background.js"

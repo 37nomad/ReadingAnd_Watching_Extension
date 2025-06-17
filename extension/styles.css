@@ -1,28 +1,163 @@
+:root {
+    --primary-color: #007aff;
+    --primary-hover: #005ecb;
+    --secondary-color: #6c757d;
+    --secondary-hover: #5a6268;
+    --background-color: #f8f9fa;
+    --text-color: #212529;
+    --border-color: #dee2e6;
+    --error-color: #dc3545;
+    --success-color: #28a745;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  padding: 10px;
-  width: 350px;
-  height: 450px;
-  overflow-y: auto;
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    width: 320px;
+    font-size: 14px;
 }
 
-h2 {
-  font-size: 16px;
-  margin-bottom: 10px;
+.container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-ul {
-  list-style: none;
-  padding-left: 0;
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 20px 0;
+    text-align: center;
 }
 
-li {
-  margin-bottom: 15px;
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
-  font-size: 13px;
+.form-group {
+    margin-bottom: 15px;
+    width: 100%;
 }
 
-a {
-  word-break: break-word;
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.25);
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-hover);
+}
+
+.btn:disabled {
+    background-color: #aeb8c1;
+    cursor: not-allowed;
+}
+
+
+.switch-form-text {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.switch-form-text a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.switch-form-text a:hover {
+    text-decoration: underline;
+}
+
+#message-area {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    text-align: center;
+    box-sizing: border-box;
+    display: none; /* Hidden by default */
+}
+
+#message-area.error {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--error-color);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    display: block;
+}
+
+#app-container {
+    text-align: center;
+}
+
+#welcome-message {
+    margin-bottom: 10px;
+}
+
+#app-container p {
+    margin: 5px 0 20px 0;
+    color: #6c757d;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Spinner Animation */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: var(--primary-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
