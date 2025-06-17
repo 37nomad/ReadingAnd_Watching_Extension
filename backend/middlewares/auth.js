@@ -1,16 +1,21 @@
-const admin = require('../config/firebase');
+const jwt = require('jsonwebtoken');
 
-const verifyToken = async (req, res, next) => {
-  const token = req.headers.authorization;
-  if (!token) return res.status(403).send('No token provided');
+// JWT middleware for protected routes
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-  try {
-    const decoded = await admin.auth().verifyIdToken(token);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).send('Unauthorized');
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
   }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid token' });
+    }
+    req.user = user;
+    next();
+  });
 };
 
-module.exports = verifyToken;
+module.exports = { authenticateToken };
