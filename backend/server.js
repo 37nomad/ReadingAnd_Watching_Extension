@@ -40,6 +40,7 @@ app.get("/health", (req, res) => {
 	});
 });
 
+
 // MongoDB connection
 const connectDB = async () => {
 	try {
