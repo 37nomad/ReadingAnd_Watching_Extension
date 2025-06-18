@@ -23,6 +23,7 @@ async function main() {
     // customize kv cache, use either context_window_size or sliding_window_size (with attention sink)
     {
       context_window_size: 2048,
+      force_full_download: true // force full download of the model, useful for debugging
       // sliding_window_size: 1024,
       // attention_sink_size: 4,
     },
@@ -78,5 +79,4 @@ async function main() {
 
   // To change model, either create a new engine via `CreateMLCEngine()`, or call `engine.reload(modelId)`
 }
-
 main();
