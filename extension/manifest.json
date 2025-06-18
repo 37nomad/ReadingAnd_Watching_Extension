@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Browsing & Video Tracker",
-  "version": "1.0",
-  "description": "Track visited websites and watched videos, with user accounts.",
+  "version": "1.1",
+  "description": "Track browsing, manage friends, and share your discoveries.",
   "permissions": [
     "tabs",
     "history",
@@ -11,7 +11,7 @@
   ],
   "host_permissions": [
     "<all_urls>",
-    "http://localhost:5000/*" 
+    "http://localhost:5000/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -22,12 +22,5 @@
       "16": "icon.png",
       "48": "icon.png"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
-  ]
+  }
 }

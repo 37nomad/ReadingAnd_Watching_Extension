@@ -3,11 +3,13 @@
     --primary-hover: #005ecb;
     --secondary-color: #6c757d;
     --secondary-hover: #5a6268;
-    --background-color: #f8f9fa;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --danger-hover: #c82333;
+    --background-color: #ffffff;
+    --light-gray-bg: #f8f9fa;
     --text-color: #212529;
     --border-color: #dee2e6;
-    --error-color: #dc3545;
-    --success-color: #28a745;
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -16,51 +18,54 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     margin: 0;
-    width: 320px;
+    width: 380px;
     font-size: 14px;
 }
 
 .container {
     padding: 20px;
+}
+
+.view {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 h1 {
     font-size: 24px;
     font-weight: 700;
-    color: var(--text-color);
     margin: 0 0 20px 0;
     text-align: center;
 }
 
-.form-group {
-    margin-bottom: 15px;
-    width: 100%;
+h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-input[type="text"],
-input[type="password"] {
+/* Forms & Buttons */
+.form-group { margin-bottom: 15px; }
+label { display: block; margin-bottom: 5px; font-weight: 500; }
+input[type="text"], input[type="password"], input[type="email"] {
     width: 100%;
     padding: 10px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     box-sizing: border-box;
-    font-size: 14px;
 }
-
 input:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.25);
 }
+.form-group-inline { display: flex; gap: 10px; }
+.form-group-inline input { flex-grow: 1; }
 
 .btn {
     width: 100%;
@@ -70,94 +75,103 @@ input:focus {
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, opacity 0.2s;
+    margin-top: 5px;
 }
+.btn-primary { background-color: var(--primary-color); color: white; }
+.btn-primary:hover { background-color: var(--primary-hover); }
+.btn-secondary { background-color: var(--secondary-color); color: white; }
+.btn-secondary:hover { background-color: var(--secondary-hover); }
+.btn-success { background-color: var(--success-color); color: white; }
+.btn-danger { background-color: var(--danger-color); color: white; }
+.btn-danger:hover { background-color: var(--danger-hover); }
 
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-}
+.btn-small { padding: 10px 12px; font-size: 14px; width: auto; margin-top: 0; }
+.btn-icon { padding: 6px 10px; font-size: 13px; width: auto; margin-top: 0; }
+.btn:disabled { background-color: #aeb8c1; cursor: not-allowed; opacity: 0.7; }
 
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-}
-
-.btn-secondary {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: var(--secondary-hover);
-}
-
-.btn:disabled {
-    background-color: #aeb8c1;
-    cursor: not-allowed;
-}
-
-
-.switch-form-text {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 13px;
-}
-
-.switch-form-text a {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.switch-form-text a:hover {
-    text-decoration: underline;
-}
-
-#message-area {
-    width: 100%;
+/* Message Area */
+#message-area,
+#friends-message-area {
     padding: 10px;
     margin-bottom: 15px;
     border-radius: 6px;
     text-align: center;
-    box-sizing: border-box;
-    display: none; /* Hidden by default */
-}
-
-#message-area.error {
-    background-color: rgba(220, 53, 69, 0.1);
-    color: var(--error-color);
-    border: 1px solid rgba(220, 53, 69, 0.2);
-    display: block;
-}
-
-#app-container {
-    text-align: center;
-}
-
-#welcome-message {
-    margin-bottom: 10px;
-}
-
-#app-container p {
-    margin: 5px 0 20px 0;
-    color: #6c757d;
-}
-
-.hidden {
     display: none;
+    border: 1px solid transparent;
+}
+#message-area.error, #friends-message-area.error { background-color: rgba(220, 53, 69, 0.1); color: var(--danger-color); border-color: rgba(220, 53, 69, 0.2); display: block; }
+#message-area.success, #friends-message-area.success { background-color: rgba(40, 167, 69, 0.1); color: var(--success-color); border-color: rgba(40, 167, 69, 0.2); display: block; }
+
+/* App & Friends Views */
+#app-container { text-align: center; }
+#app-container p { margin: 5px 0 20px 0; color: #6c757d; }
+.view-header { display: flex; align-items: center; margin-bottom: 15px; }
+.view-header h1 { flex-grow: 1; margin: 0; }
+.btn-back { background: none; border: none; font-size: 14px; cursor: pointer; color: var(--primary-color); font-weight: 500; padding: 5px; }
+
+/* List Styles */
+.list-container { max-height: 150px; overflow-y: auto; background-color: var(--light-gray-bg); border-radius: 6px; padding: 5px; border: 1px solid var(--border-color); }
+
+#search-results {
+    margin-top: 10px; /* <-- ADD THIS LINE FOR SPACING */
 }
 
-/* Spinner Animation */
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: var(--primary-color);
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 20px;
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+}
+.list-item:last-child { border-bottom: none; }
+.list-item-content { display: flex; flex-direction: column; }
+.list-item .username { font-weight: 700; }
+.list-item .displayName { font-size: 12px; color: var(--secondary-color); }
+.list-item .actions { display: flex; gap: 5px; }
+.list-placeholder { padding: 20px; text-align: center; color: var(--secondary-color); }
+
+/* Content Viewer */
+.content-item {
+    padding: 10px;
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+}
+.content-item:last-child { border-bottom: none; }
+.content-item-title { font-weight: 700; margin-bottom: 4px; }
+.content-item-summary { font-size: 13px; color: #343a40; margin-bottom: 6px; }
+.content-item-url { font-size: 12px; color: var(--primary-color); text-decoration: none; }
+.content-item-url:hover { text-decoration: underline; }
+
+/* Utilities */
+.hidden { display: none !important; }
+.spinner-container { display: flex; justify-content: center; align-items: center; height: 300px; }
+.spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: var(--primary-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.switch-form-text { margin-top: 20px; text-align: center; font-size: 13px; }
+.switch-form-text a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+.switch-form-text a:hover { text-decoration: underline; }
+
+/* The main scrollbar track (the "channel") */
+::-webkit-scrollbar {
+  width: 8px; /* Make the scrollbar thinner */
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
+/* The track itself */
+::-webkit-scrollbar-track {
+  background: var(--light-gray-bg); /* Use a light, unobtrusive background */
+  border-radius: 10px;
+}
+
+/* The draggable scrolling handle (the "thumb") */
+::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1; /* A neutral gray for the handle */
+  border-radius: 10px; /* Fully rounded corners for a "pill" shape */
+  border: 2px solid var(--light-gray-bg); /* Creates a nice padding effect */
+}
+
+/* The handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--secondary-color); /* Use your theme's secondary color on hover */
 }
