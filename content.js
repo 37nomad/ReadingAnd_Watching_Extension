@@ -1,4 +1,4 @@
- class EnhancedContentScraper {
+class EnhancedContentScraper {
   constructor() {
     console.log('Enhanced Content Scraper with YouTube transcript support initialized');
   }
@@ -433,21 +433,52 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
   });
 }
 
-// Auto-extract content when page loads
+let activeTime = 0;         // in milliseconds
+let isTabActive = document.visibilityState === 'visible';
+let lastActiveTimestamp = isTabActive ? Date.now() : null;
+const requiredActiveTime = 3 * 60 * 1000; // 3 minutes
+let hasExtracted = false;
 
-  (async () => {
-      console.log('Auto-extracting content in 5 seconds...');
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      const content = await scraper.extractContent();
-      if (content) {
-      console.log('Auto-extracted content:', content);
-      window.extractedContent = content;
-      }
-  })();
-
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    isTabActive = true;
+    lastActiveTimestamp = Date.now();
+    console.log('⏳ Tab active again. Resuming timer...');
+  } else {
+    isTabActive = false;
+    if (lastActiveTimestamp) {
+      activeTime += Date.now() - lastActiveTimestamp;
+      console.log(`⏸️ Tab inactive. Active time so far: ${Math.floor(activeTime / 1000)} sec`);
+    }
+  }
+});
 
 // Make scraper available globally
 window.scraper = scraper;
+
+setInterval(async () => {
+  if (isTabActive && !hasExtracted) {
+    const now = Date.now();
+    if (lastActiveTimestamp) {
+      activeTime += now - lastActiveTimestamp;
+      lastActiveTimestamp = now;
+    }
+
+    const seconds = Math.floor(activeTime / 1000);
+    console.log(`⏱️ Active time on page: ${seconds} seconds`);
+
+    if (activeTime >= requiredActiveTime) {
+      console.log('✅ Required active time reached! Extracting content...');
+      const content = await scraper.extractContent();
+      if (content) {
+        console.log('🎯 Content extracted after active time:', content);
+        window.extractedContent = content;
+        hasExtracted = true;
+      }
+    }
+  }
+}, 5000); // Checks every 5 seconds
+
 
 // SPA handling using MutationObserver (YouTube specific)
 (function observeYouTubeNavigation() {
@@ -456,6 +487,11 @@ let lastUrl = location.href;
 const observer = new MutationObserver(async () => {
   const currentUrl = location.href;
   if (currentUrl !== lastUrl) {
+    lastUrl = currentUrl;
+    activeTime = 0;
+    hasExtracted = false;
+    lastActiveTimestamp = document.visibilityState === 'visible' ? Date.now() : null;
+
     lastUrl = currentUrl;
 
     // Wait briefly to allow content to load
