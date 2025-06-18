@@ -13,7 +13,7 @@ async function main() {
     setLabel("init-label", report.text);
   };
   // Option 1: If we do not specify appConfig, we use `prebuiltAppConfig` defined in `config.ts`
-  const selectedModel = "gemma-3-1b-it-q4f16_1-MLC";
+  const selectedModel = "SmolLM2-360M-Instruct-q0f16-MLC";
   const engine: webllm.MLCEngineInterface = await webllm.CreateMLCEngine(
     selectedModel,
     {
@@ -23,10 +23,10 @@ async function main() {
     // customize kv cache, use either context_window_size or sliding_window_size (with attention sink)
     {
       context_window_size: 8192,
-      force_full_download: true // force full download of the model, useful for debugging
+      force_full_download: true, // force full download of the model, useful for debugging
       // sliding_window_size: 1024,
       // attention_sink_size: 4,
-    },
+    }
   );
 
   // Option 2: Specify your own model other than the prebuilt ones
@@ -56,26 +56,21 @@ async function main() {
   //   initProgressCallback: initProgressCallback,
   // });
   // await engine.reload(selectedModel);
-
+  console.log("Started generating the answer...");
   const reply0 = await engine.chat.completions.create({
     messages: [{ role: "user", content: "List three US states." }],
     // below configurations are all optional
-    n: 3,
+    n: 1,
     temperature: 1.5,
-    max_tokens: 256,
+    max_tokens: 8192,
     // 46510 and 7188 are "California", and 8421 and 51325 are "Texas" in Llama-3.1-8B-Instruct
     // So we would have a higher chance of seeing the latter two, but never the first in the answer
-    logit_bias: {
-      "46510": -100,
-      "7188": -100,
-      "8421": 5,
-      "51325": 5,
-    },
-    logprobs: true,
-    top_logprobs: 2,
+    // logprobs: true,
+    // top_logprobs: 2,
   });
-  console.log(reply0);
-  console.log(reply0.usage);
+  console.log("done with the completion.");
+  console.log(reply0.choices[0].message.content);
+  // console.log(reply0.usage);
 
   // To change model, either create a new engine via `CreateMLCEngine()`, or call `engine.reload(modelId)`
 }
