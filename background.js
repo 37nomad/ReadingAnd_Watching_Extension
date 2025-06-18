@@ -15,18 +15,18 @@ function injectScraper(tabId) {
 // 💾 Save scraped content in local storage
 function saveScrapedContent(newItem) {
   chrome.storage.local.get(["scrapedItems"], (result) => {
-    const items = result.scrapedItems || [];
+    let items = result.scrapedItems || [];
 
-    const alreadyExists = items.some(item => item.url === newItem.url);
-    if (alreadyExists) {
-      console.log("⚠️ Already saved.");
-      return;
+    items = items.filter(item => item.url !== newItem.url);
+
+    items.unshift(newItem);
+
+    if (items.length > 40) {
+      items = items.slice(0, 40);
     }
 
-    items.push(newItem);
-
     chrome.storage.local.set({ scrapedItems: items }, () => {
-      console.log("✅ Saved:", newItem.title);
+      console.log(`✅ Saved: ${newItem.title} | Total stored: ${items.length}`);
     });
   });
 }

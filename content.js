@@ -1,4 +1,4 @@
-class EnhancedContentScraper {
+ class EnhancedContentScraper {
   constructor() {
     console.log('Enhanced Content Scraper with YouTube transcript support initialized');
   }

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
       container.innerHTML = "";
   
-      const latestItems = items.slice(-10).reverse();
+      const latestItems = items.slice(0, 10);
   
       latestItems.forEach((item, index) => {
         const div = document.createElement("div");
