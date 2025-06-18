@@ -114,7 +114,7 @@ router.get("/requests", authenticateToken, async (req, res) => {
 });
 
 // POST /api/friends/accept
-// accept a request 
+// accept a request
 router.post("/accept", authenticateToken, async (req, res) => {
 	try {
 		const { fromId } = req.body;
@@ -199,7 +199,6 @@ router.post("/reject", authenticateToken, async (req, res) => {
 	}
 });
 
-
 // GET /api/friends/sent-requests
 // see the sent requests
 router.get("/sent-requests", authenticateToken, async (req, res) => {
@@ -234,8 +233,6 @@ router.get("/sent-requests", authenticateToken, async (req, res) => {
 		res.status(500).json({ error: "Something went wrong" });
 	}
 });
-
-
 
 // POST /api/friends/cancel
 // cancel a request that you have sent(after checking from the /sent-requests)
@@ -293,6 +290,14 @@ router.post("/remove", authenticateToken, async (req, res) => {
 
 		if (!user || !friend) {
 			return res.status(404).json({ error: "User not found" });
+		}
+
+		//bug-fix
+		const isFriend =
+			user.friends.includes(friendId) && friend.friends.includes(userId);
+
+		if (!isFriend) {
+			return res.status(400).json({ error: "Users are not friends" });
 		}
 
 		user.friends = user.friends.filter((id) => id.toString() !== friendId);

@@ -19,26 +19,26 @@ router.post("/", authenticateToken, async (req, res) => {
 			author,
 			publishedDate,
 			readingTimeMinutes,
-			thumbnail
+			thumbnail,
 		} = req.body;
 
 		// Validation
 		if (!title || !summary || !originalUrl || !contentType || !domain) {
 			return res.status(400).json({
-				error: "Missing required fields: title, summary, originalUrl, contentType, domain"
+				error: "Missing required fields: title, summary, originalUrl, contentType, domain",
 			});
 		}
 
 		// Check if content already exists for this user
 		const existingContent = await Content.findOne({
 			userId: req.user.userId,
-			originalUrl: originalUrl
+			originalUrl: originalUrl,
 		});
 
 		if (existingContent) {
 			return res.status(409).json({
 				error: "Content already exists",
-				content: existingContent
+				content: existingContent,
 			});
 		}
 
@@ -55,19 +55,18 @@ router.post("/", authenticateToken, async (req, res) => {
 			author,
 			publishedDate,
 			readingTimeMinutes,
-			thumbnail
+			thumbnail,
 		});
 
 		await content.save();
 
 		// Populate user info for response
-		await content.populate('userId', 'username displayName');
+		await content.populate("userId", "username displayName");
 
 		res.status(201).json({
 			message: "Content added successfully",
-			content
+			content,
 		});
-
 	} catch (error) {
 		console.error("Add content error:", error);
 		res.status(500).json({ error: "Failed to add content" });
@@ -82,8 +81,8 @@ router.get("/my", authenticateToken, async (req, res) => {
 			limit = 20,
 			contentType,
 			domain,
-			sortBy = 'scrapedAt',
-			sortOrder = 'desc'
+			sortBy = "scrapedAt",
+			sortOrder = "desc",
 		} = req.query;
 
 		// Build filter
@@ -93,7 +92,7 @@ router.get("/my", authenticateToken, async (req, res) => {
 
 		// Build sort
 		const sort = {};
-		sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+		sort[sortBy] = sortOrder === "desc" ? -1 : 1;
 
 		const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -102,8 +101,8 @@ router.get("/my", authenticateToken, async (req, res) => {
 				.sort(sort)
 				.skip(skip)
 				.limit(parseInt(limit))
-				.populate('userId', 'username displayName'),
-			Content.countDocuments(filter)
+				.populate("userId", "username displayName"),
+			Content.countDocuments(filter),
 		]);
 
 		res.json({
@@ -112,10 +111,9 @@ router.get("/my", authenticateToken, async (req, res) => {
 				currentPage: parseInt(page),
 				totalPages: Math.ceil(totalCount / parseInt(limit)),
 				totalCount,
-				hasMore: skip + content.length < totalCount
-			}
+				hasMore: skip + content.length < totalCount,
+			},
 		});
-
 	} catch (error) {
 		console.error("Get my content error:", error);
 		res.status(500).json({ error: "Failed to fetch content" });
@@ -126,12 +124,7 @@ router.get("/my", authenticateToken, async (req, res) => {
 router.get("/user/:username", async (req, res) => {
 	try {
 		const { username } = req.params;
-		const {
-			page = 1,
-			limit = 20,
-			contentType,
-			domain
-		} = req.query;
+		const { page = 1, limit = 20, contentType, domain } = req.query;
 
 		// Find the user
 		const user = await User.findOne({ username });
@@ -145,9 +138,9 @@ router.get("/user/:username", async (req, res) => {
 		}
 
 		// Build filter for public content only
-		const filter = { 
-			userId: user._id, 
-			isPublic: true 
+		const filter = {
+			userId: user._id,
+			isPublic: true,
 		};
 		if (contentType) filter.contentType = contentType;
 		if (domain) filter.domain = domain;
@@ -159,25 +152,24 @@ router.get("/user/:username", async (req, res) => {
 				.sort({ scrapedAt: -1 })
 				.skip(skip)
 				.limit(parseInt(limit))
-				.populate('userId', 'username displayName'),
-			Content.countDocuments(filter)
+				.populate("userId", "username displayName"),
+			Content.countDocuments(filter),
 		]);
 
 		res.json({
 			user: {
 				username: user.username,
 				displayName: user.displayName,
-				profilePicture: user.profilePicture
+				profilePicture: user.profilePicture,
 			},
 			content,
 			pagination: {
 				currentPage: parseInt(page),
 				totalPages: Math.ceil(totalCount / parseInt(limit)),
 				totalCount,
-				hasMore: skip + content.length < totalCount
-			}
+				hasMore: skip + content.length < totalCount,
+			},
 		});
-
 	} catch (error) {
 		console.error("Get user content error:", error);
 		res.status(500).json({ error: "Failed to fetch user content" });
@@ -191,17 +183,18 @@ router.delete("/:contentId", authenticateToken, async (req, res) => {
 
 		const content = await Content.findOne({
 			_id: contentId,
-			userId: req.user.userId
+			userId: req.user.userId,
 		});
 
 		if (!content) {
-			return res.status(404).json({ error: "Content not found or unauthorized" });
+			return res
+				.status(404)
+				.json({ error: "Content not found or unauthorized" });
 		}
 
 		await Content.findByIdAndDelete(contentId);
 
 		res.json({ message: "Content deleted successfully" });
-
 	} catch (error) {
 		console.error("Delete content error:", error);
 		res.status(500).json({ error: "Failed to delete content" });
@@ -218,17 +211,18 @@ router.patch("/:contentId/privacy", authenticateToken, async (req, res) => {
 			{ _id: contentId, userId: req.user.userId },
 			{ isPublic: Boolean(isPublic) },
 			{ new: true }
-		).populate('userId', 'username displayName');
+		).populate("userId", "username displayName");
 
 		if (!content) {
-			return res.status(404).json({ error: "Content not found or unauthorized" });
+			return res
+				.status(404)
+				.json({ error: "Content not found or unauthorized" });
 		}
 
 		res.json({
 			message: "Content privacy updated",
-			content
+			content,
 		});
-
 	} catch (error) {
 		console.error("Update content privacy error:", error);
 		res.status(500).json({ error: "Failed to update content privacy" });
@@ -247,15 +241,19 @@ router.get("/stats", authenticateToken, async (req, res) => {
 					_id: null,
 					totalContent: { $sum: 1 },
 					articleCount: {
-						$sum: { $cond: [{ $eq: ["$contentType", "article"] }, 1, 0] }
+						$sum: {
+							$cond: [{ $eq: ["$contentType", "article"] }, 1, 0],
+						},
 					},
 					videoCount: {
-						$sum: { $cond: [{ $eq: ["$contentType", "video"] }, 1, 0] }
+						$sum: {
+							$cond: [{ $eq: ["$contentType", "video"] }, 1, 0],
+						},
 					},
 					averageQualityScore: { $avg: "$qualityScore" },
-					totalReadingTime: { $sum: "$readingTimeMinutes" }
-				}
-			}
+					totalReadingTime: { $sum: "$readingTimeMinutes" },
+				},
+			},
 		]);
 
 		// Get top domains
@@ -263,14 +261,14 @@ router.get("/stats", authenticateToken, async (req, res) => {
 			{ $match: { userId: userId } },
 			{ $group: { _id: "$domain", count: { $sum: 1 } } },
 			{ $sort: { count: -1 } },
-			{ $limit: 10 }
+			{ $limit: 10 },
 		]);
 
 		// Get recent activity (last 7 days)
 		const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 		const recentCount = await Content.countDocuments({
 			userId: userId,
-			scrapedAt: { $gte: weekAgo }
+			scrapedAt: { $gte: weekAgo },
 		});
 
 		res.json({
@@ -279,12 +277,11 @@ router.get("/stats", authenticateToken, async (req, res) => {
 				articleCount: 0,
 				videoCount: 0,
 				averageQualityScore: 0,
-				totalReadingTime: 0
+				totalReadingTime: 0,
 			},
 			topDomains,
-			recentActivity: recentCount
+			recentActivity: recentCount,
 		});
-
 	} catch (error) {
 		console.error("Get content stats error:", error);
 		res.status(500).json({ error: "Failed to fetch content statistics" });

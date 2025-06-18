@@ -9,12 +9,9 @@ const User = require("./models/User");
 
 require("dotenv").config();
 
-
-
 const app = express();
 
 // Middleware
-
 
 app.use(cors());
 app.use(express.json());
@@ -39,7 +36,6 @@ app.get("/health", (req, res) => {
 			mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
 	});
 });
-
 
 // MongoDB connection
 const connectDB = async () => {
