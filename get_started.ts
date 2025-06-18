@@ -13,7 +13,7 @@ async function main() {
     setLabel("init-label", report.text);
   };
   // Option 1: If we do not specify appConfig, we use `prebuiltAppConfig` defined in `config.ts`
-  const selectedModel = "gemma-2-2b-it-q4f16_1-MLC";
+  const selectedModel = "gemma-3-1b-it-q4f16_1-MLC";
   const engine: webllm.MLCEngineInterface = await webllm.CreateMLCEngine(
     selectedModel,
     {
@@ -22,7 +22,7 @@ async function main() {
     },
     // customize kv cache, use either context_window_size or sliding_window_size (with attention sink)
     {
-      context_window_size: 2048,
+      context_window_size: 8192,
       force_full_download: true // force full download of the model, useful for debugging
       // sliding_window_size: 1024,
       // attention_sink_size: 4,
