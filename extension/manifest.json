@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Browsing & Video Tracker",
+  "version": "1.1",
+  "description": "Track browsing, manage friends, and share your discoveries.",
+  "permissions": [
+    "tabs",
+    "history",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "http://localhost:5000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png"
+    }
+  }
+}
