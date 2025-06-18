@@ -4,6 +4,8 @@ const User = require("../models/User");
 const mongoose = require("mongoose");
 const { authenticateToken } = require("../middlewares/auth");
 
+// POST /api/friends/request
+// send a request to someone
 router.post("/request", authenticateToken, async (req, res) => {
 	try {
 		const { toUsername } = req.body;
@@ -34,9 +36,19 @@ router.post("/request", authenticateToken, async (req, res) => {
 			(r) => r.from.toString() === toUser._id.toString()
 		);
 		if (reverseRequestExists) {
-			return res
-				.status(400)
-				.json({ error: "User already sent you a request" });
+			// Auto-accept logic
+			toUser.friends.push(fromUser._id);
+			fromUser.friends.push(toUser._id);
+
+			// Remove the reverse request
+			fromUser.friendRequests = fromUser.friendRequests.filter(
+				(r) => r.from.toString() !== toUser._id.toString()
+			);
+
+			await fromUser.save();
+			await toUser.save();
+
+			return res.json({ message: "Mutual friend request auto-accepted" });
 		}
 
 		const alreadyRequested = toUser.friendRequests.find(
@@ -65,6 +77,7 @@ router.post("/request", authenticateToken, async (req, res) => {
 });
 
 // GET /api/friends/requests
+// see pending incoming requests
 router.get("/requests", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.user.userId);
@@ -101,6 +114,7 @@ router.get("/requests", authenticateToken, async (req, res) => {
 });
 
 // POST /api/friends/accept
+// accept a request 
 router.post("/accept", authenticateToken, async (req, res) => {
 	try {
 		const { fromId } = req.body;
@@ -110,7 +124,7 @@ router.post("/accept", authenticateToken, async (req, res) => {
 			return res.status(400).json({ error: "fromId required" });
 		}
 
-		// ✅ Validate ObjectId format
+		//  Validate ObjectId format
 		if (!mongoose.Types.ObjectId.isValid(fromId)) {
 			return res.status(400).json({ error: "Invalid fromId format" });
 		}
@@ -149,6 +163,7 @@ router.post("/accept", authenticateToken, async (req, res) => {
 });
 
 // POST /api/friends/reject
+// reject someone's request(after checking from the /requests)
 router.post("/reject", authenticateToken, async (req, res) => {
 	try {
 		const { fromId } = req.body;
@@ -184,7 +199,46 @@ router.post("/reject", authenticateToken, async (req, res) => {
 	}
 });
 
+
+// GET /api/friends/sent-requests
+// see the sent requests
+router.get("/sent-requests", authenticateToken, async (req, res) => {
+	try {
+		const currentUser = await User.findById(req.user.userId);
+		if (!currentUser) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		// Find users who have this user in their friendRequests array
+		const sentRequests = await User.find({
+			"friendRequests.from": currentUser._id,
+		}).select("_id username displayName friendRequests");
+
+		// Extract timestamp and match against currentUser ID
+		const enriched = sentRequests.map((user) => {
+			const request = user.friendRequests.find(
+				(r) => r.from.toString() === currentUser._id.toString()
+			);
+
+			return {
+				id: user._id,
+				username: user.username,
+				displayName: user.displayName,
+				requestedAt: request?.timestamp,
+			};
+		});
+
+		res.json({ sent: enriched });
+	} catch (err) {
+		console.error("Fetch sent requests error:", err);
+		res.status(500).json({ error: "Something went wrong" });
+	}
+});
+
+
+
 // POST /api/friends/cancel
+// cancel a request that you have sent(after checking from the /sent-requests)
 router.post("/cancel", authenticateToken, async (req, res) => {
 	try {
 		const { toId } = req.body;
@@ -221,6 +275,7 @@ router.post("/cancel", authenticateToken, async (req, res) => {
 });
 
 // POST /api/friends/remove
+// remove a friend
 router.post("/remove", authenticateToken, async (req, res) => {
 	try {
 		const { friendId } = req.body;
@@ -256,6 +311,7 @@ router.post("/remove", authenticateToken, async (req, res) => {
 });
 
 // GET /api/friends/list
+// list of all the friends
 router.get("/list", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.user.userId);

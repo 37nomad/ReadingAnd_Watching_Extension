@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
 	password: { type: String, required: true },
 	displayName: { type: String },
 	isProfilePublic: { type: Boolean, default: true },
+	profilePicture: {
+		type: String,
+		default: null,
+	},
 	friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // use ObjectId
 	friendRequests: [
 		{
