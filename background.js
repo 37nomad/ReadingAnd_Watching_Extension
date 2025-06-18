@@ -1,19 +1,27 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'saveContent' && request.data) {
-      const jsonString = JSON.stringify(request.data, null, 2);
-      const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonString);
-  
-      chrome.downloads.download({
-        url: dataUrl,
-        filename: `scraped-${Date.now()}.json`,
-        saveAs: false // change to true if you want manual save prompt
-      }, (downloadId) => {
-        if (chrome.runtime.lastError) {
-          console.error('Download error:', chrome.runtime.lastError.message);
-        } else {
-          console.log('✅ JSON download started with ID:', downloadId);
-        }
-      });
+function saveScrapedContent(newItem) {
+  chrome.storage.local.get(["scrapedItems"], (result) => {
+    const items = result.scrapedItems || [];
+
+    // Avoid duplicates
+    const alreadyExists = items.some(item => item.url === newItem.url);
+    if (alreadyExists) {
+      console.log("⚠️ Already saved.");
+      return;
     }
+
+    items.push(newItem);
+
+    chrome.storage.local.set({ scrapedItems: items }, () => {
+      console.log("✅ Saved:", newItem.title);
+    });
   });
-  
+}
+
+// ✅ THIS IS MISSING
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'saveContent' && message.data) {
+    console.log("📩 Received scraped content in background:", message.data);
+    saveScrapedContent(message.data);
+    sendResponse({ status: 'ok' });
+  }
+});
