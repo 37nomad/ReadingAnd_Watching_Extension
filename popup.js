@@ -9,9 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
   
-      container.innerHTML = ""; // Clear "Loading..."
+      container.innerHTML = "";
   
-      items.forEach((item, index) => {
+      const latestItems = items.slice(-10).reverse();
+  
+      latestItems.forEach((item, index) => {
         const div = document.createElement("div");
         div.className = "item";
   
@@ -21,19 +23,19 @@ document.addEventListener('DOMContentLoaded', () => {
   
         const meta = document.createElement("div");
         meta.className = "item-meta";
-        meta.textContent = `Page: ${item.pagetype || "Unknown"} • ${item.wordCount || 0} words • Score: ${item.qualityScore || "N/A"}`;
+        meta.textContent = `${item.pagetype || "page"} \u2022 ${item.wordCount || 0} words`;
   
-        const extractedAt = document.createElement("div");
-        extractedAt.className = "item-meta";
-        extractedAt.textContent = `Extracted: ${item.extractedAt || "Unknown time"}`;
+        const time = document.createElement("div");
+        time.className = "item-meta";
+        time.textContent = `Scraped at: ${new Date(item.extractedAt).toLocaleString()}`;
   
         const url = document.createElement("div");
         url.className = "item-meta";
-        url.textContent = `URL: ${item.url || "No URL"}`;
+        url.textContent = item.url || "No URL";
   
         div.appendChild(title);
         div.appendChild(meta);
-        div.appendChild(extractedAt);
+        div.appendChild(time);
         div.appendChild(url);
   
         container.appendChild(div);
