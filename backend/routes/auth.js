@@ -21,15 +21,21 @@ router.post("/register", async (req, res) => {
 		}
 
 		const existingUser = await User.findOne({
-			$or: [{ email }, { username }],
+			$or: [
+				{ email: email.toLowerCase().trim() },
+				{ username: username.toLowerCase().trim() },
+			],
 		});
 
 		if (existingUser) {
+			// Check which field matched
+			const isEmailMatch = existingUser.email === email.toLowerCase().trim();
+			const isUsernameMatch = existingUser.username === username.toLowerCase().trim();
+
 			return res.status(400).json({
-				error:
-					existingUser.email === email
-						? "Email already exists"
-						: "Username already exists",
+				error: isEmailMatch
+					? "Email already exists"
+					: "Username already exists",
 			});
 		}
 
@@ -78,7 +84,10 @@ router.post("/login", async (req, res) => {
 		}
 
 		const user = await User.findOne({
-			$or: [{ username: login }, { email: login.toLowerCase() }],
+			$or: [
+				{ username: login.toLowerCase().trim() },
+				{ email: login.toLowerCase().trim() },
+			],
 		});
 
 		if (!user) {

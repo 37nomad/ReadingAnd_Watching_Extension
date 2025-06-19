@@ -3,23 +3,18 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const friendsRouter = require("./routes/friends");
-const contentRoutes = require("./routes/content");
 const { authenticateToken } = require("./middlewares/auth");
 const userSearchRoutes = require("./routes/userSearchRoutes");
 const User = require("./models/User");
 
 require("dotenv").config();
 
-
-
 const app = express();
 
 // Middleware
 
-
 app.use(cors());
 app.use(express.json());
-app.use("/api/content", contentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendsRouter);
 app.use("/api/users", userSearchRoutes); 
