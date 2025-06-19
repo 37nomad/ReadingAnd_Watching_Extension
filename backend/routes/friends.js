@@ -18,7 +18,9 @@ router.post("/request", authenticateToken, async (req, res) => {
 		}
 
 		const fromUser = await User.findById(fromId);
-		const toUser = await User.findOne({ username: toUsername });
+		const toUser = await User.findOne({
+			username: toUsername.toLowerCase().trim(),
+		});
 
 		if (!fromUser || !toUser) {
 			return res.status(404).json({ error: "User not found" });
@@ -28,21 +30,30 @@ router.post("/request", authenticateToken, async (req, res) => {
 			return res.status(400).json({ error: "You cannot add yourself" });
 		}
 
-		if (toUser.friends.some((id) => id.equals(fromUser._id))) {
+		// Already friends
+		if (
+			toUser.friends.some(
+				(f) => f.id.toString() === fromUser._id.toString()
+			)
+		) {
 			return res.status(400).json({ error: "Already friends" });
 		}
 
-		const reverseRequestExists = fromUser.friendRequests.find(
-			(r) => r.from.toString() === toUser._id.toString()
+		const fromIdStr = fromUser._id.toString();
+		const toIdStr = toUser._id.toString();
+
+		// Auto-accept if reverse request exists
+		const reverseRequest = fromUser.friendRequests.find(
+			(r) => r.from.toString() === toIdStr
 		);
-		if (reverseRequestExists) {
-			// Auto-accept logic
-			toUser.friends.push(fromUser._id);
-			fromUser.friends.push(toUser._id);
+		if (reverseRequest) {
+			// Add each other as friends
+			toUser.friends.push({ id: fromUser._id });
+			fromUser.friends.push({ id: toUser._id });
 
 			// Remove the reverse request
 			fromUser.friendRequests = fromUser.friendRequests.filter(
-				(r) => r.from.toString() !== toUser._id.toString()
+				(r) => r.from.toString() !== toIdStr
 			);
 
 			await fromUser.save();
@@ -51,8 +62,9 @@ router.post("/request", authenticateToken, async (req, res) => {
 			return res.json({ message: "Mutual friend request auto-accepted" });
 		}
 
+		// Check for duplicate request
 		const alreadyRequested = toUser.friendRequests.find(
-			(r) => r.from.toString() === fromUser._id.toString()
+			(r) => r.from.toString() === fromIdStr
 		);
 		if (alreadyRequested) {
 			return res
@@ -102,7 +114,6 @@ router.get("/requests", authenticateToken, async (req, res) => {
 				id: sender._id,
 				username: sender.username,
 				displayName: sender.displayName,
-				requestedAt: reqMeta?.timestamp,
 			};
 		});
 
@@ -143,11 +154,11 @@ router.post("/accept", authenticateToken, async (req, res) => {
 			return res.status(400).json({ error: "No such friend request" });
 		}
 
-		if (!toUser.friends.includes(fromId)) {
-			toUser.friends.push(fromId);
+		if (!toUser.friends.some((f) => f.id.toString() === fromId)) {
+			toUser.friends.push({ id: fromId });
 		}
-		if (!fromUser.friends.includes(toId)) {
-			fromUser.friends.push(toId);
+		if (!fromUser.friends.some((f) => f.id.toString() === toId)) {
+			fromUser.friends.push({ id: toId });
 		}
 
 		toUser.friendRequests.splice(requestIndex, 1);
@@ -223,7 +234,6 @@ router.get("/sent-requests", authenticateToken, async (req, res) => {
 				id: user._id,
 				username: user.username,
 				displayName: user.displayName,
-				requestedAt: request?.timestamp,
 			};
 		});
 
@@ -294,15 +304,16 @@ router.post("/remove", authenticateToken, async (req, res) => {
 
 		//bug-fix
 		const isFriend =
-			user.friends.includes(friendId) && friend.friends.includes(userId);
+			user.friends.some((f) => f.id.toString() === friendId) &&
+			friend.friends.some((f) => f.id.toString() === userId);
 
 		if (!isFriend) {
 			return res.status(400).json({ error: "Users are not friends" });
 		}
 
-		user.friends = user.friends.filter((id) => id.toString() !== friendId);
+		user.friends = user.friends.filter((f) => f.id.toString() !== friendId);
 		friend.friends = friend.friends.filter(
-			(id) => id.toString() !== userId
+			(f) => f.id.toString() !== userId
 		);
 
 		await user.save();
@@ -325,11 +336,19 @@ router.get("/list", authenticateToken, async (req, res) => {
 			return res.status(404).json({ error: "User not found" });
 		}
 
-		const friends = await User.find({
-			_id: { $in: user.friends },
+		const friendIds = user.friends.map((f) => f.id);
+
+		const friendsRaw = await User.find({
+			_id: { $in: friendIds },
 		}).select("_id username displayName");
 
-		res.json({ friends });
+		const enrichedFriends = friendsRaw.map((f) => ({
+			id: f._id,
+			username: f.username,
+			displayName: f.displayName,
+		}));
+
+		res.json({ friends: enrichedFriends });
 	} catch (err) {
 		console.error("Fetch friends error:", err);
 		res.status(500).json({ error: "Something went wrong" });
