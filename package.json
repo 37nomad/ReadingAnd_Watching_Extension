@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "@mlc-ai/web-llm": "^0.2.79"
+    "@mlc-ai/web-llm": "^0.2.79",
+    "@mlc-ai/web-runtime": "^0.18.0-dev2",
+    "@mlc-ai/web-tokenizers": "^0.1.6"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.326",
@@ -14,5 +16,20 @@
   "scripts": {
     "start": "parcel get_started.html  --port 8888",
     "build": "parcel build get_started.html --dist-dir lib"
-  }
+  },
+  "name": "readingand_watching_extension",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/37nomad/ReadingAnd_Watching_Extension.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/37nomad/ReadingAnd_Watching_Extension/issues"
+  },
+  "homepage": "https://github.com/37nomad/ReadingAnd_Watching_Extension#readme"
 }
