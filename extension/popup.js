@@ -31,12 +31,13 @@ const searchResults = document.getElementById('search-results');
 const incomingRequestsList = document.getElementById('incoming-requests-list');
 const sentRequestsList = document.getElementById('sent-requests-list');
 const friendsList = document.getElementById('friends-list');
+const friendsMessageArea = document.getElementById('friends-message-area');
+
 
 // Content Viewer
 const backToFriendsBtn = document.getElementById('back-to-friends-btn');
 const contentViewerTitle = document.getElementById('content-viewer-title');
 const friendContentList = document.getElementById('friend-content-list');
-const friendsMessageArea = document.getElementById('friends-message-area');
 
 
 // --- VIEW MANAGEMENT ---
@@ -60,6 +61,7 @@ function debounce(func, delay) {
         }, delay);
     };
 }
+
 
 // --- API HELPER ---
 async function apiRequest(endpoint, options = {}) {
@@ -92,11 +94,11 @@ function displayFriendsMessage(text, isError = false) {
     friendsMessageArea.textContent = text;
     friendsMessageArea.className = isError ? 'error' : 'success';
 }
-
 function hideFriendsMessage() {
     friendsMessageArea.className = '';
     friendsMessageArea.textContent = '';
 }
+
 
 // --- RENDER FUNCTIONS ---
 function renderList(container, items, renderItemFunc, placeholderText) {
@@ -131,6 +133,8 @@ function renderSearchResults(users) {
 }
 
 function renderFriendsList(friends) {
+    // CRITICAL CHANGE HERE: Your API for /list now returns objects with 'id', not '_id'.
+    // We update the data-id attribute to use `friend.id`.
     renderList(friendsList, friends, (friend) => createListItem(`
         <div class="list-item-content">
             <span class="username">${friend.username}</span>
@@ -138,7 +142,7 @@ function renderFriendsList(friends) {
         </div>
         <div class="actions">
             <button class="btn btn-small btn-primary view-data-btn" data-username="${friend.username}">View</button>
-            <button class="btn btn-small btn-danger remove-friend-btn" data-id="${friend._id}">Remove</button>
+            <button class="btn btn-small btn-danger remove-friend-btn" data-id="${friend.id}">Remove</button>
         </div>
     `), 'You have no friends yet.');
 }
@@ -236,17 +240,13 @@ async function handleLogout() {
 async function handleLiveSearch() {
     hideFriendsMessage();
     const query = searchInput.value.trim();
-
     if (!query) {
-        searchResults.innerHTML = ''; // Clear results
-        searchResults.classList.add('hidden'); // Hide the container
+        searchResults.innerHTML = '';
+        searchResults.classList.add('hidden');
         return;
     }
-
-    // Make the container visible right before searching
     searchResults.classList.remove('hidden');
     searchResults.innerHTML = `<div class="list-placeholder">Searching...</div>`;
-
     try {
         const data = await apiRequest(`/users/search?q=${encodeURIComponent(query)}`);
         renderSearchResults(data.users);
@@ -258,24 +258,26 @@ async function handleLiveSearch() {
 
 async function fetchAllFriendData() {
     try {
-        const [friends, incoming, sent] = await Promise.all([
+        const [friendsResponse, incomingResponse, sentResponse] = await Promise.all([
             apiRequest('/friends/list'),
             apiRequest('/friends/requests'),
             apiRequest('/friends/sent-requests')
         ]);
-        renderFriendsList(friends.friends);
-        renderIncomingRequests(incoming.pending);
-        renderSentRequests(sent.sent);
+        renderFriendsList(friendsResponse.friends);
+        renderIncomingRequests(incomingResponse.pending);
+        renderSentRequests(sentResponse.sent);
     } catch (err) {
         console.error("Failed to fetch friend data:", err.message);
+        displayFriendsMessage(err.message, true);
     }
 }
 
 async function handleViewFriendData(username) {
     contentViewerTitle.textContent = `${username}'s Content`;
     showView('content-viewer-container');
-    renderFriendContent([]); // show loading state
+    renderFriendContent([]);
     try {
+        // NOTE: This endpoint doesn't exist yet, but the UI is ready for it.
         const { content } = await apiRequest(`/content/user/${username}`);
         renderFriendContent(content);
     } catch (err) {
@@ -301,10 +303,9 @@ function toggleAuthForms() {
 }
 
 async function checkAuthStatus() {
-    showView(null); // Show loading spinner
+    showView(null);
     const { token, user } = await chrome.storage.local.get(['token', 'user']);
     if (token && user) {
-        // Optional: Add a call to a /me endpoint to verify token is still valid
         showLoggedInView(user);
     } else {
         showView('auth-container');
@@ -327,96 +328,63 @@ manageFriendsBtn.addEventListener('click', () => {
     showView('friends-container');
 });
 backToAppBtn.addEventListener('click', () => {
-    // Reset the search state when leaving the friends page
-    hideFriendsMessage();
     searchInput.value = '';
     searchResults.innerHTML = '';
     searchResults.classList.add('hidden');
-
-    // Go back to the main app view
     showView('app-container');
 });
 backToFriendsBtn.addEventListener('click', () => showView('friends-container'));
 
-// Friend Actions (using event delegation)
+// Live Search
 searchInput.addEventListener('input', debounce(handleLiveSearch, 300));
 
+// Friend Actions
 document.body.addEventListener('click', async (e) => {
     hideFriendsMessage();
-
     const target = e.target;
     let needsFullRefresh = false;
-
     try {
         if (target.matches('.add-friend-btn')) {
             target.disabled = true;
             target.textContent = '...';
             await apiRequest('/friends/request', { method: 'POST', body: JSON.stringify({ toUsername: target.dataset.username }) });
             needsFullRefresh = true;
-
         } else if (target.matches('.accept-request-btn')) {
             await apiRequest('/friends/accept', { method: 'POST', body: JSON.stringify({ fromId: target.dataset.id }) });
             needsFullRefresh = true;
-
         } else if (target.matches('.reject-request-btn')) {
             await apiRequest('/friends/reject', { method: 'POST', body: JSON.stringify({ fromId: target.dataset.id }) });
             needsFullRefresh = true;
-
         } else if (target.matches('.cancel-request-btn')) {
             await apiRequest('/friends/cancel', { method: 'POST', body: JSON.stringify({ toId: target.dataset.id }) });
             needsFullRefresh = true;
-
         } else if (target.matches('.view-data-btn')) {
             handleViewFriendData(target.dataset.username);
-
-        // --- NEW INLINE CONFIRMATION LOGIC (REPLACES confirm()) ---
-
         } else if (target.matches('.remove-friend-btn')) {
-            // STEP 1: Show the confirmation buttons
             const actionsDiv = target.closest('.actions');
             const friendId = target.dataset.id;
-            actionsDiv.innerHTML = `
-                <button class="btn btn-small btn-danger confirm-remove-btn" data-id="${friendId}">Confirm</button>
-                <button class="btn btn-small btn-secondary cancel-remove-btn" data-id="${friendId}">Cancel</button>
-            `;
-
+            actionsDiv.innerHTML = `<button class="btn btn-small btn-danger confirm-remove-btn" data-id="${friendId}">Confirm</button> <button class="btn btn-small btn-secondary cancel-remove-btn" data-id="${friendId}">Cancel</button>`;
         } else if (target.matches('.cancel-remove-btn')) {
-            // STEP 2A: Revert back to the original state if canceled
             const actionsDiv = target.closest('.actions');
             const listItem = target.closest('.list-item');
             const friendId = target.dataset.id;
             const friendUsername = listItem.querySelector('.username').textContent;
-            
-            actionsDiv.innerHTML = `
-                <button class="btn btn-small btn-primary view-data-btn" data-username="${friendUsername}">View</button>
-                <button class="btn btn-small btn-danger remove-friend-btn" data-id="${friendId}">Remove</button>
-            `;
-
+            actionsDiv.innerHTML = `<button class="btn btn-small btn-primary view-data-btn" data-username="${friendUsername}">View</button> <button class="btn btn-small btn-danger remove-friend-btn" data-id="${friendId}">Remove</button>`;
         } else if (target.matches('.confirm-remove-btn')) {
-            // STEP 2B: Perform the removal if confirmed
             const actionsDiv = target.closest('.actions');
             const listItem = target.closest('.list-item');
             const friendId = target.dataset.id;
             const friendUsername = listItem.querySelector('.username').textContent;
-
-            // Give feedback
             target.disabled = true;
             target.textContent = '...';
-
-            // Call the API
             await apiRequest('/friends/remove', { method: 'POST', body: JSON.stringify({ friendId }) });
-
-            // Optimistically update the UI to the "Add" state
             actionsDiv.innerHTML = `<button class="btn btn-small btn-success add-friend-btn" data-username="${friendUsername}">Add</button>`;
         }
-        
-        // --- Perform Full Refresh if an action required it ---
         if (needsFullRefresh) {
             await fetchAllFriendData();
         }
-
     } catch (err) {
-        displayFriendsMessage(err.message, true); // Use the non-blocking error display
+        displayFriendsMessage(err.message, true);
         if (needsFullRefresh) {
             await fetchAllFriendData();
         }
