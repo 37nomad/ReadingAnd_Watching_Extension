@@ -73,10 +73,26 @@ async function main() {
   //     content: `Title: "${title}"\nDescription: "${description}"`
   //   }
   // ]
-  const title = "Get Rich Quick!"; //"Basics of Climate Change";
-  //
-  const description =
-    "Tired of your 9 to 5 job? Learn how you can start making ₹10,000 a day from home with zero investment! Our proven system requires no skills, experience, or effort. Thousands of people have already quit their jobs and are now living their dream life. All you have to do is sign up, refer a few friends, and watch your income grow automatically. No products, no calls, just pure profits. Join now before registration closes!";
+  let title = "Untitled";
+  let description = "No description found.";
+
+  // Fetch from chrome.storage.local
+  await new Promise<void>((resolve) => {
+    chrome.storage.local.get(['scrapedContent'], (result) => {
+      const scraped = result.scrapedContent;
+      if (scraped) {
+        title = scraped.title || "Untitled";
+        description = scraped.text || scraped.content || "No description.";
+      }
+      resolve();
+    });
+  });
+  console.log(title)
+  console.log(description)
+  // const title = "Get Rich Quick!"; //"Basics of Climate Change";
+  // //
+  // const description =
+  //   "Tired of your 9 to 5 job? Learn how you can start making ₹10,000 a day from home with zero investment! Our proven system requires no skills, experience, or effort. Thousands of people have already quit their jobs and are now living their dream life. All you have to do is sign up, refer a few friends, and watch your income grow automatically. No products, no calls, just pure profits. Join now before registration closes!";
   // "This article provides a comprehensive introduction to the science of climate change. It begins by explaining the greenhouse effect—how certain gases in the Earth's atmosphere trap heat, warming the planet. It then explores the historical data showing a steady rise in global temperatures over the past century, correlating with increased carbon dioxide levels from industrial activity. The article includes case studies from various parts of the world, showing how melting glaciers, rising sea levels, and extreme weather events are linked to climate shifts. It concludes with a discussion on mitigation strategies, such as reducing fossil fuel consumption, investing in renewable energy, and international cooperation through agreements like the Paris Accord.";
   console.time("Model Response Time: ");
   const reply0 = await engine.chat.completions.create({
