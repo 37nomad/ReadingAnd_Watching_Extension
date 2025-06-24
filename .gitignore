@@ -1,8 +1,2 @@
 node_modules/
 .parcel-cache/
-background.js/
-content.js/
-input.js/
-manifest.json/
-popup.html/
-popup.js/
