@@ -1,5 +1,5 @@
 chrome.runtime.sendMessage({ action: "getScrapedHistory" }, (history) => {
-  console.log("🧾 Got scraped history:", history);
+  console.log("Got scraped history:", history);
 
   const contentDiv = document.getElementById("content");
   contentDiv.innerHTML = "";
@@ -13,7 +13,7 @@ chrome.runtime.sendMessage({ action: "getScrapedHistory" }, (history) => {
   }
 
   for (const item of history) {
-    console.log("📌 Rendering item:", item);
+    console.log("Rendering item:", item);
 
     const div = document.createElement("div");
     div.className = "item";

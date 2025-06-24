@@ -1,6 +1,6 @@
 (() => { 
   if (window.hasInitializedScraper) {
-    console.log("⚠️ Scraper already initialized. Skipping.");
+    console.log("Scraper already initialized. Skipping.");
     return;
   }
   window.hasInitializedScraper = true;
@@ -13,14 +13,12 @@
           console.log('Enhanced Content Scraper with YouTube transcript support initialized');
         }
       
-        // Main function - extracts content from current page
         async extractContent() {
           const url = window.location.href;
           const pageType = this.getPageType(url);
           
           console.log(`Extracting from: ${pageType} | ${url}`);
       
-          // Get basic page data
           const title = this.getTitle();
           let content = '';
           
@@ -32,7 +30,6 @@
           
           const wordCount = this.countWords(content);
           
-          // For YouTube, lower the minimum word threshold since transcripts can be valuable even if shorter
           const minWords = pageType === 'youtube' ? 20 : 50;
           
           if (wordCount < minWords) {
@@ -40,7 +37,6 @@
             return null;
           }
       
-          // Create result object
           const result = {
             url: url,
             title: title,
@@ -59,35 +55,22 @@
           });
 
           chrome.runtime.sendMessage({
-              action: 'saveContent',
-              data: result,
-            }, (response) => {
-              console.log('💾 Content saved to background:', response);
-          });
-
-          chrome.runtime.sendMessage({
-            action: 'summarize',
-            data: {
-              title: result.title,
-              description: result.content
-            }
+            action: 'saveContent',
+            data: result
           }, (response) => {
-            console.log('📤 Sent to background:', response);
-          });      
-          
+            console.log('Sent to background:', response);
+          });                
+    
           return result;
         }
       
-        // Determine what type of page this is
         getPageType(url) {
           const hostname = new URL(url).hostname.toLowerCase();
           
-          // YouTube
           if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
             return 'youtube';
           }
           
-          // Common article sites
           if (hostname.includes('medium.com') || 
               hostname.includes('substack.com') ||
               hostname.includes('dev.to') ||
@@ -101,11 +84,9 @@
           return 'webpage';
         }
       
-        // Get page title
         getTitle() {
           let title = '';
           
-          // For YouTube, try video title first
           if (this.getPageType(window.location.href) === 'youtube') {
             const ytTitleSelectors = [
               'h1.ytd-video-primary-info-renderer',
@@ -123,7 +104,6 @@
             }
           }
           
-          // Try main heading (h1)
           if (!title) {
             const h1 = document.querySelector('h1');
             if (h1 && h1.textContent.trim()) {
@@ -131,18 +111,15 @@
             }
           }
           
-          // Try page title if h1 is empty or too short
           if (!title || title.length < 10) {
             title = document.title;
           }
           
-          // Clean up title (remove site name)
           title = this.cleanTitle(title);
           
           return title;
         }
       
-        // Clean title by removing common suffixes
         cleanTitle(title) {
           const suffixes = [
             ' - YouTube',
@@ -163,30 +140,25 @@
           return title.trim();
         }
       
-        // Enhanced YouTube content extraction with transcript support
         async getYouTubeContent() {
           console.log('Attempting to extract YouTube content...');
           
-          // Try to get transcript first (most valuable)
           const transcript = await this.getYouTubeTranscript();
           if (transcript && transcript.length > 50) {
-            console.log('✅ Found transcript:', transcript.length, 'characters');
+            console.log('Found transcript:', transcript.length, 'characters');
             return transcript;
           }
           
-          // Fallback to description
           const description = this.getYouTubeDescription();
           if (description && description.length > 20) {
-            console.log('✅ Found description:', description.length, 'characters');
+            console.log('Found description:', description.length, 'characters');
             return description;
           }
           
-          // Last fallback to title
           console.log('⚠️ Using title as fallback');
           return this.getTitle();
         }
       
-        // Get YouTube video description
         getYouTubeDescription() {
           const descriptionSelectors = [
             '#description-text',
@@ -206,18 +178,15 @@
           return '';
         }
       
-        // Get YouTube transcript
         async getYouTubeTranscript() {
           try {
-            console.log('🔍 Looking for transcript...');
+            console.log('Looking for transcript...');
             
-            // Method 1: Try to find transcript button and click it
             const transcriptButton = this.findTranscriptButton();
             if (transcriptButton) {
-              console.log('📝 Found transcript button, clicking...');
+              console.log('Found transcript button, clicking...');
               transcriptButton.click();
               
-              // Wait for transcript to load
               await this.sleep(2000);
               
               const transcript = this.extractTranscriptText();
@@ -226,23 +195,21 @@
               }
             }
             
-            // Method 2: Look for already opened transcript
             const existingTranscript = this.extractTranscriptText();
             if (existingTranscript) {
-              console.log('📝 Found existing transcript');
+              console.log('Found existing transcript');
               return existingTranscript;
             }
             
-            console.log('❌ No transcript found');
+            console.log('No transcript found');
             return '';
             
           } catch (error) {
-            console.log('❌ Transcript extraction error:', error.message);
+            console.log('Transcript extraction error:', error.message);
             return '';
           }
         }
       
-        // Find transcript button
         findTranscriptButton() {
           const buttonSelectors = [
             'button[aria-label*="transcript" i]',
@@ -254,7 +221,6 @@
           
           for (const selector of buttonSelectors) {
             if (selector.includes(':contains')) {
-              // Handle pseudo-selector manually
               const elements = document.querySelectorAll(selector.split(':contains')[0]);
               for (const el of elements) {
                 if (el.textContent.toLowerCase().includes('transcript')) {
@@ -267,7 +233,6 @@
             }
           }
           
-          // Look for buttons with transcript-related text
           const allButtons = document.querySelectorAll('button, [role="button"]');
           for (const button of allButtons) {
             const text = button.textContent.toLowerCase();
@@ -280,7 +245,6 @@
           return null;
         }
       
-        // Extract transcript text from transcript panel
         extractTranscriptText() {
           const transcriptSelectors = [
             '.ytd-transcript-segment-renderer',
@@ -293,9 +257,7 @@
             const elements = document.querySelectorAll(selector);
             if (elements.length > 0) {
               const transcriptParts = Array.from(elements).map(el => {
-                // Remove timestamps and clean text
                 let text = el.textContent.trim();
-                // Remove timestamp patterns like "0:00", "1:23", etc.
                 text = text.replace(/^\d{1,2}:\d{2}\s*/, '');
                 return text;
               }).filter(text => text.length > 0);
@@ -309,12 +271,10 @@
           return '';
         }
       
-        // Sleep utility
         sleep(ms) {
           return new Promise(resolve => setTimeout(resolve, ms));
         }
       
-        // Get article content (unchanged from original)
         getArticleContent() {
           const contentSelectors = [
             'article',
@@ -340,7 +300,6 @@
           return this.cleanContent(document.body);
         }
       
-        // Clean content by removing unwanted elements
         cleanContent(element) {
           const clone = element.cloneNode(true);
           
@@ -371,33 +330,26 @@
           return content;
         }
       
-        // Count words in text
         countWords(text) {
           if (!text) return 0;
           return text.trim().split(/\s+/).filter(word => word.length > 0).length;
         }
       
-        // Enhanced quality scoring with YouTube support
         calculateQualityScore(wordCount, title, pageType) {
           let score = 1;
           
-          // Base scoring for word count
-          if (wordCount > 50) score += 1;   // Lower threshold for YouTube
+          if (wordCount > 50) score += 1;
           if (wordCount > 100) score += 1;
           if (wordCount > 300) score += 1;
           if (wordCount > 500) score += 1;
           if (wordCount > 1000) score += 1;
           if (wordCount > 2000) score += 1;
           
-          // Bonus for good title length
           if (title.length > 20 && title.length < 100) score += 1;
           
-          // YouTube-specific bonuses
           if (pageType === 'youtube') {
-            // Bonus for having transcript vs just description
-            if (wordCount > 200) score += 1; // Likely has transcript
+            if (wordCount > 200) score += 1;
             
-            // Educational content indicators
             const educationalKeywords = ['tutorial', 'how to', 'explained', 'guide', 'learn'];
             const titleLower = title.toLowerCase();
             if (educationalKeywords.some(keyword => titleLower.includes(keyword))) {
@@ -408,13 +360,11 @@
           return Math.min(score, 10);
         }
       
-        // Manual transcript extraction helper
         async extractTranscriptManually() {
-          console.log('🔧 Manual transcript extraction mode');
+          console.log('Manual transcript extraction mode');
           console.log('1. Look for "Show transcript" button and click it');
           console.log('2. Wait a moment, then run: scraper.extractTranscriptText()');
           
-          // Look for transcript UI elements
           const transcriptElements = document.querySelectorAll('[class*="transcript"], [aria-label*="transcript"]');
           console.log('Found transcript-related elements:', transcriptElements.length);
           
@@ -426,10 +376,8 @@
         }
       }
 
-      // Initialize enhanced scraper
     const scraper = new EnhancedContentScraper();
     
-    // Extension message listener (only runs in extension context)
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === 'extractContent') {
@@ -450,27 +398,26 @@
         });
     }
     
-    let activeTime = 0;         // in milliseconds
+    let activeTime = 0;
     let isTabActive = document.visibilityState === 'visible';
     let lastActiveTimestamp = isTabActive ? Date.now() : null;
-    const requiredActiveTime =  15 * 1000; // 3 minutes
+    const requiredActiveTime = 15 * 1000; // 3 minutes can use 15 secs for quick testing 
     let hasExtracted = false;
     
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
         isTabActive = true;
         lastActiveTimestamp = Date.now();
-        console.log('⏳ Tab active again. Resuming timer...');
+        console.log('Tab active again. Resuming timer...');
         } else {
         isTabActive = false;
         if (lastActiveTimestamp) {
             activeTime += Date.now() - lastActiveTimestamp;
-            console.log(`⏸️ Tab inactive. Active time so far: ${Math.floor(activeTime / 1000)} sec`);
+            console.log(`Tab inactive. Active time so far: ${Math.floor(activeTime / 1000)} sec`);
         }
         }
     });
     
-    // Make scraper available globally
     window.scraper = scraper;
     
     setInterval(async () => {
@@ -482,38 +429,35 @@
         }
     
         const seconds = Math.floor(activeTime / 1000);
-        console.log(`⏱️ Active time on page: ${seconds} seconds`);
+        console.log(`Active time on page: ${seconds} seconds`);
     
         if (activeTime >= requiredActiveTime) {
-            console.log('✅ Required active time reached! Extracting content...');
+            console.log('Required active time reached! Extracting content...');
             const content = await scraper.extractContent();
             if (content) {
-            console.log('🎯 Content extracted after active time:', content);
+            console.log('Content extracted after active time:', content);
             window.extractedContent = content;
             hasExtracted = true;
             }
         }
         }
-    }, 5000); // Checks every 5 seconds
+    }, 10000);
     
     
-    // SPA handling using MutationObserver (YouTube specific)
     (function observeYouTubeNavigation() {
         let lastUrl = location.href;
     
         const observer = new MutationObserver(() => {
         const currentUrl = location.href;
         if (currentUrl !== lastUrl) {
-            console.log('🔄 YouTube SPA navigation detected:', currentUrl);
+            console.log('YouTube SPA navigation detected:', currentUrl);
             lastUrl = currentUrl;
     
-            // Reset extraction state — don't extract immediately
             activeTime = 0;
             hasExtracted = false;
             lastActiveTimestamp = document.visibilityState === 'visible' ? Date.now() : null;
     
-            // Optional: log this delay
-            console.log('⏳ Waiting 15s after SPA navigation...');
+            console.log('Waiting 15s after SPA navigation...');
         }
         });
     
@@ -522,7 +466,7 @@
         subtree: true,
         });
     
-        console.log('🎯 YouTube SPA navigation observer activated');
+        console.log('YouTube SPA navigation observer activated');
     })(); 
   }
 })();

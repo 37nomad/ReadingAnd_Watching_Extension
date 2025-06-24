@@ -41,12 +41,12 @@ async function runSummarization(title, description) {
     return;
   }
 
-  console.log("🧠 Running LLM summarization...");
+  console.log("Running LLM summarization...");
 
   const reply = await engine.chat.completions.create({
     messages: [
       {
-        role: "system", // Change 2 ---> system role ke liye content change kardiya for better classification.
+        role: "system",
         content: `You are a content‑screening and summarization assistant.  
                   When given a Title and Description of an article or video:Add commentMore actions
                   1. First determine whether the content is genuinely educational, informative, or of general interest.  
@@ -61,24 +61,20 @@ async function runSummarization(title, description) {
         content: `Title: "${title}"\nDescription: "${description}"`,
       },
     ],
-    max_tokens: 4096, // Change 1 ---> isko 4096 kardiya from 1024 
+    max_tokens: 4096,
 
   });
 
-  console.log("📝 Summary:", reply.choices[0].message.content);
+  console.log("Summary:", reply.choices[0].message.content);
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "summarize" && message.data) {
     const { title, description } = message.data;
-    //------------------>
 
-    // Change 3 ---> yaha pe apan description ko limit kar rahe hain to first 1000 words kyuki max_tokens = 4096 hee hai so extracting 
-    // first 1000 words is a good choice or we can go upto 2000 words but this is the maximum.
     const limitedDescription = description.split(/\s+/).slice(0, 1000).join(" ");
     
-    //------------------>
-    console.log("📥 Received data to summarize:", title, limitedDescription);
+    console.log("Received data to summarize:", title, limitedDescription);
     runSummarization(title, limitedDescription);
     sendResponse({ status: "summarizing" });
   }

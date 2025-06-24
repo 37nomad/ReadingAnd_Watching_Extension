@@ -8,7 +8,7 @@ function injectScraper(tabId) {
     if (chrome.runtime.lastError) {
       console.warn("Injection failed:", chrome.runtime.lastError.message);
     } else {
-      console.log("✅ Scraper injected into tab", tabId);
+      console.log("Scraper injected into tab", tabId);
     }
   });
 }
@@ -20,16 +20,16 @@ function preloadLLMTab() {
         url: chrome.runtime.getURL("get_started.html"),
         active: false
       }, (tab) => {
-        console.log("🚀 get_started.html loaded in background tab", tab.id);
+        console.log("get_started.html loaded in background tab", tab.id);
       });
     } else {
-      console.log("🧠 LLM tab already loaded.");
+      console.log("LLM tab already loaded.");
     }
   });
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("📩 Received saveContent:", message.data);
+  console.log("Received saveContent:", message.data);
   if (message.action === 'saveContent' && message.data) {
     const data = {
       title: message.data.title,
@@ -40,15 +40,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       extractedAt: new Date().toISOString()
     };
 
-    // Add to the front of the array
     scrapedHistory.unshift(data);
 
-    // Keep only the last 10 entries
     if (scrapedHistory.length > 10) {
       scrapedHistory = scrapedHistory.slice(0, 10);
     }
 
-    // Trigger summarization
     chrome.runtime.sendMessage({
       action: 'summarize',
       data: {
@@ -57,7 +54,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     });
 
-    // Optional: notify popup or badge
     chrome.runtime.sendMessage({
       action: 'newScrapedContent',
       data: data
@@ -66,12 +62,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ status: 'ok' });
   }
 
-  // 🔁 Provide scraped history to popup
   if (message.action === 'getScrapedHistory') {
     sendResponse(scrapedHistory);
   }
 
-  // 🧠 (legacy) Provide latest scraped content
   if (message.action === 'getScrapedContent') {
     sendResponse({ data: scrapedHistory[0] || null });
   }
