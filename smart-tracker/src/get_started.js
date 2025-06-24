@@ -78,8 +78,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const limitedDescription = description.split(/\s+/).slice(0, 1000).join(" ");
     
     //------------------>
-    console.log("📥 Received data to summarize:", title, description);
-    runSummarization(title, description);
+    console.log("📥 Received data to summarize:", title, limitedDescription);
+    runSummarization(title, limitedDescription);
     sendResponse({ status: "summarizing" });
   }
 });
