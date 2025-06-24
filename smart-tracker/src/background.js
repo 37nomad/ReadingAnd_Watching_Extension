@@ -1,3 +1,5 @@
+let scrapedHistory = [];
+
 function injectScraper(tabId) {
   chrome.scripting.executeScript({
     target: { tabId: tabId },
@@ -27,21 +29,54 @@ function preloadLLMTab() {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("📩 Received saveContent:", message.data);
   if (message.action === 'saveContent' && message.data) {
-    console.log("📩 Received scraped content:", message.data);
+    const data = {
+      title: message.data.title,
+      content: message.data.content,
+      url: message.data.url || (sender.tab ? sender.tab.url : ''),
+      wordCount: message.data.wordCount || message.data.content?.split(/\s+/).length || 0,
+      pageType: message.data.pageType || 'webpage',
+      extractedAt: new Date().toISOString()
+    };
 
-    // Forward to LLM for summarization
+    // Add to the front of the array
+    scrapedHistory.unshift(data);
+
+    // Keep only the last 10 entries
+    if (scrapedHistory.length > 10) {
+      scrapedHistory = scrapedHistory.slice(0, 10);
+    }
+
+    // Trigger summarization
     chrome.runtime.sendMessage({
       action: 'summarize',
       data: {
-        title: message.data.title,
-        description: message.data.content
+        title: data.title,
+        description: data.content
       }
     });
 
-    // Notify popup if needed (optional)
+    // Optional: notify popup or badge
+    chrome.runtime.sendMessage({
+      action: 'newScrapedContent',
+      data: data
+    });
+
     sendResponse({ status: 'ok' });
   }
+
+  // 🔁 Provide scraped history to popup
+  if (message.action === 'getScrapedHistory') {
+    sendResponse(scrapedHistory);
+  }
+
+  // 🧠 (legacy) Provide latest scraped content
+  if (message.action === 'getScrapedContent') {
+    sendResponse({ data: scrapedHistory[0] || null });
+  }
+
+  return true;
 });
 
 function isSafePage(url) {
@@ -50,15 +85,14 @@ function isSafePage(url) {
 
 chrome.tabs.onActivated.addListener(({ tabId }) => {
   chrome.tabs.get(tabId, (tab) => {
-    if (!tab.url.startsWith("chrome://") && !tab.url.startsWith("chrome-extension://")) {
+    if (isSafePage(tab.url)) {
       injectScraper(tabId);
     }
   });
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === "complete" && tab.active &&
-      !tab.url.startsWith("chrome://") && !tab.url.startsWith("chrome-extension://")) {
+  if (changeInfo.status === "complete" && tab.active && isSafePage(tab.url)) {
     injectScraper(tabId);
   }
 });

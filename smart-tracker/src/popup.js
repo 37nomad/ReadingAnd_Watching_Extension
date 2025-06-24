@@ -1,26 +1,30 @@
-let latestScrapedItems = []; // Temporary in-memory list
+chrome.runtime.sendMessage({ action: "getScrapedHistory" }, (history) => {
+  console.log("🧾 Got scraped history:", history);
 
-function renderItems(container, items) {
-  container.innerHTML = "";
+  const contentDiv = document.getElementById("content");
+  contentDiv.innerHTML = "";
 
-  if (items.length === 0) {
-    container.textContent = "No scraped content found.";
+  if (!history || history.length === 0) {
+    const msg = document.createElement("div");
+    msg.className = "no-content";
+    msg.textContent = "No scraped content found.";
+    contentDiv.appendChild(msg);
     return;
   }
 
-  const latestItems = items.slice(0, 10);
+  for (const item of history) {
+    console.log("📌 Rendering item:", item);
 
-  latestItems.forEach((item, index) => {
     const div = document.createElement("div");
     div.className = "item";
 
     const title = document.createElement("div");
     title.className = "item-title";
-    title.textContent = item.title || `Item ${index + 1}`;
+    title.textContent = item.title || "Untitled";
 
     const meta = document.createElement("div");
     meta.className = "item-meta";
-    meta.textContent = `${item.pageType || "page"} \u2022 ${item.wordCount || 0} words`;
+    meta.textContent = `${item.pageType || "page"} • ${item.wordCount || 0} words`;
 
     const time = document.createElement("div");
     time.className = "item-meta";
@@ -35,28 +39,6 @@ function renderItems(container, items) {
     div.appendChild(time);
     div.appendChild(url);
 
-    container.appendChild(div);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('content-list');
-
-  // Render any already received items
-  renderItems(container, latestScrapedItems);
-
-  // Listen for new scraped items sent from background
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'newScrapedContent' && message.data) {
-      console.log("🆕 Received new scraped item in popup:", message.data);
-      latestScrapedItems.unshift(message.data);
-
-      // Keep only the last 10
-      if (latestScrapedItems.length > 10) {
-        latestScrapedItems = latestScrapedItems.slice(0, 10);
-      }
-
-      renderItems(container, latestScrapedItems);
-    }
-  });
+    contentDiv.appendChild(div);
+  }
 });
