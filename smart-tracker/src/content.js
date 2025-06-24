@@ -401,7 +401,7 @@
     let activeTime = 0;
     let isTabActive = document.visibilityState === 'visible';
     let lastActiveTimestamp = isTabActive ? Date.now() : null;
-    const requiredActiveTime = 15 * 1000; // 3 minutes can use 15 secs for quick testing 
+    const requiredActiveTime = 3 * 60 * 1000; // 3 minutes can use 15 secs for quick testing 
     let hasExtracted = false;
     
     document.addEventListener('visibilitychange', () => {
