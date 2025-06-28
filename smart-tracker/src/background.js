@@ -91,6 +91,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     injectScraper(tabId);
   }
 });
-
+preloadLLMTab();
 chrome.runtime.onInstalled.addListener(preloadLLMTab);
 chrome.runtime.onStartup.addListener(preloadLLMTab);
