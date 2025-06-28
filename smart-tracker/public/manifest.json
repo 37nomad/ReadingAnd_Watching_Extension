@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Browsing & Video Tracker",
+  "name": "Smart Tracker",
   "version": "1.0",
-  "description": "Summarizes web content using local LLM.",
+  "description": "An AI-powered social bookmarking tool that summarizes web pages for you to save and share with friends.",
   "permissions": ["scripting", "tabs", "activeTab", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": {
