@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+.parcel-cache/
+*.lock
+*.log
+*.mpack
+snapshot-*
+
+# Env files
+.env
