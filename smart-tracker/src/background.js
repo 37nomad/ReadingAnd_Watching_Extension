@@ -50,7 +50,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       action: 'summarize',
       data: {
         title: data.title,
-        description: data.content
+        description: data.content,
+        url: data.url
       }
     });
 
