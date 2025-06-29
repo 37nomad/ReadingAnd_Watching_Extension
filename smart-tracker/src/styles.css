@@ -188,34 +188,33 @@ input:focus {
     text-decoration: underline;
 }
 
-/* --- UI UPDATES FOR CONTENT/HISTORY VIEWERS --- */
-
 /* 1. Make the main list containers for history and content taller */
 #my-history-container .list-container,
 #content-viewer-container .list-container {
-    max-height: 350px; /* Increased from 150px for more vertical space */
+    max-height: 350px;
 }
 
 /* 2. Make individual summaries within a content item scrollable */
 .content-item-summary {
-    max-height: 65px; /* Approx 4-5 lines of text */
-    overflow-y: auto;   /* Show a scrollbar ONLY if the summary is too long */
-    padding-right: 8px; /* Add space so the scrollbar doesn't overlap text */
-    white-space: pre-wrap; /* Respect line breaks from the summary */
-    word-break: break-word; /* Prevent long words from overflowing */
+    /* CHANGED THIS LINE - The box for the summary is now taller */
+    max-height: 110px; /* Approx 7-8 lines of text */
+    overflow-y: auto;
+    padding-right: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 /* 3. Style the new, smaller scrollbar inside the summary */
 .content-item-summary::-webkit-scrollbar {
-  width: 6px; /* Make it thinner than the main scrollbar */
+  width: 6px;
 }
 
 .content-item-summary::-webkit-scrollbar-track {
-  background: transparent; /* Make the track invisible */
+  background: transparent;
 }
 
 .content-item-summary::-webkit-scrollbar-thumb {
-  background-color: #d6d6d6; /* A lighter, less obtrusive gray */
+  background-color: #d6d6d6;
   border-radius: 10px;
 }
 
