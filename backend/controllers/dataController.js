@@ -25,7 +25,15 @@ exports.addData = async (req, res) => {
 			return res.status(404).json({ error: "User not found" });
 		}
 
-		// 3. Create the new data object and add it to the user's data array
+		// 3. Enforce max 15 entries: keep the 14 most recent before adding new
+		if (user.data.length >= 15) {
+			user.data.sort(
+				(a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+			); // oldest first
+			user.data = user.data.slice(user.data.length - 14); // keep the 14 latest
+		}
+
+		// 4. Create and push new data entry
 		const newDataEntry = {
 			title,
 			url,
@@ -34,10 +42,10 @@ exports.addData = async (req, res) => {
 		};
 		user.data.push(newDataEntry);
 
-		// 4. Save the user document
+		// 5. Save user document
 		await user.save();
 
-		// 5. Respond with the newly created data (it's the last element in the array)
+		// 6. Return success
 		res.status(201).json({
 			message: "Data added successfully",
 			newData: user.data[user.data.length - 1],
