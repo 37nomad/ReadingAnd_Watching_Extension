@@ -65,6 +65,7 @@
         <div id="app-container" class="view hidden">
             <h1 id="welcome-message">Welcome!</h1>
             <p>You are successfully logged in.</p>
+            <button id="show-history-btn" class="btn btn-primary">Show Watch History</button>
             <button id="manage-friends-btn" class="btn btn-primary">Manage Friends</button>
             <button id="logout-btn" class="btn btn-secondary">Logout</button>
         </div>
@@ -106,7 +107,13 @@
                 <div id="friends-list" class="list-container"></div>
             </div>
         </div>
-        
+        <div id="my-history-container" class="view hidden">
+            <header class="view-header">
+                <button class="btn-back" id="back-to-app-from-history-btn">← Back</button>
+                <h1>My Content</h1>
+            </header>
+            <div id="my-history-list" class="list-container"></div>
+        </div>
         <!-- Friend Content Viewer View -->
         <div id="content-viewer-container" class="view hidden">
             <header class="view-header">
@@ -117,6 +124,6 @@
         </div>
 
     </div>
-    <script src="popup.js"></script>
+    <script type="module" src="popup.js"></script>
 </body>
 </html>

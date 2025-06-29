@@ -175,3 +175,49 @@ input:focus {
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--secondary-color); /* Use your theme's secondary color on hover */
 }
+
+/* Add this to your styles.css file, for example, under the Content Viewer section */
+
+.content-item-title-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.content-item-title-link:hover .content-item-title {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* 1. Make the main list containers for history and content taller */
+#my-history-container .list-container,
+#content-viewer-container .list-container {
+    max-height: 350px;
+}
+
+/* 2. Make individual summaries within a content item scrollable */
+.content-item-summary {
+    /* CHANGED THIS LINE - The box for the summary is now taller */
+    max-height: 110px; /* Approx 7-8 lines of text */
+    overflow-y: auto;
+    padding-right: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* 3. Style the new, smaller scrollbar inside the summary */
+.content-item-summary::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-item-summary::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content-item-summary::-webkit-scrollbar-thumb {
+  background-color: #d6d6d6;
+  border-radius: 10px;
+}
+
+.content-item-summary::-webkit-scrollbar-thumb:hover {
+  background-color: var(--secondary-color);
+}

@@ -1,2 +1,0 @@
-# ReadingAnd_Watching_Extension
-

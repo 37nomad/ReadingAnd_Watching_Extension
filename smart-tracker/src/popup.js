@@ -9,6 +9,7 @@ const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 const friendsContainer = document.getElementById('friends-container');
 const contentViewerContainer = document.getElementById('content-viewer-container');
+const myHistoryContainer = document.getElementById('my-history-container');
 
 // Auth
 const loginForm = document.getElementById('login-form');
@@ -23,6 +24,7 @@ const welcomeMessage = document.getElementById('welcome-message');
 const manageFriendsBtn = document.getElementById('manage-friends-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const backToAppBtn = document.getElementById('back-to-app-btn');
+const showHistoryBtn = document.getElementById('show-history-btn');
 
 // Friends
 const searchForm = document.getElementById('search-form');
@@ -38,6 +40,9 @@ const friendsMessageArea = document.getElementById('friends-message-area');
 const backToFriendsBtn = document.getElementById('back-to-friends-btn');
 const contentViewerTitle = document.getElementById('content-viewer-title');
 const friendContentList = document.getElementById('friend-content-list');
+
+const backToAppFromHistoryBtn = document.getElementById('back-to-app-from-history-btn');
+const myHistoryList = document.getElementById('my-history-list'); 
 
 
 // --- VIEW MANAGEMENT ---
@@ -172,17 +177,19 @@ function renderSentRequests(requests) {
     `), 'No pending sent requests.');
 }
 
-function renderFriendContent(contentItems) {
-    renderList(friendContentList, contentItems, (item) => {
+function renderDataItems(container, dataItems) {
+    renderList(container, dataItems, (item) => {
         const div = document.createElement('div');
         div.className = 'content-item';
+        // Use a real a tag for the title to make the link more accessible
         div.innerHTML = `
-            <div class="content-item-title">${item.title}</div>
+            <a href="${item.url}" target="_blank" class="content-item-title-link">
+                <div class="content-item-title">${item.title}</div>
+            </a>
             <p class="content-item-summary">${item.summary}</p>
-            <a href="${item.originalUrl}" target="_blank" class="content-item-url">${item.domain}</a>
         `;
         return div;
-    }, 'This friend has no public content.');
+    }, 'No content has been shared yet.');
 }
 
 // --- ASYNC LOGIC & HANDLERS ---
@@ -275,14 +282,32 @@ async function fetchAllFriendData() {
 async function handleViewFriendData(username) {
     contentViewerTitle.textContent = `${username}'s Content`;
     showView('content-viewer-container');
-    renderFriendContent([]);
+    // Set a loading state
+    friendContentList.innerHTML = `<div class="list-placeholder">Loading content...</div>`;
     try {
-        // NOTE: This endpoint doesn't exist yet, but the UI is ready for it.
-        const { content } = await apiRequest(`/content/user/${username}`);
-        renderFriendContent(content);
+        // Use the correct, working API endpoint
+        const response = await apiRequest(`/data/${username}`);
+        // Use the new generic render function
+        renderDataItems(friendContentList, response.data);
     } catch (err) {
         console.error("Failed to fetch friend data", err);
-        renderFriendContent(null);
+        friendContentList.innerHTML = `<div class="list-placeholder error">${err.message}</div>`;
+    }
+}
+
+async function handleShowMyHistory() {
+    showView('my-history-container');
+    myHistoryList.innerHTML = `<div class="list-placeholder">Loading your history...</div>`;
+    try {
+        const { user } = await chrome.storage.local.get('user');
+        if (!user || !user.username) {
+            throw new Error("Could not find your username.");
+        }
+        const response = await apiRequest(`/data/${user.username}`);
+        renderDataItems(myHistoryList, response.data);
+    } catch (err) {
+        console.error("Failed to fetch your history:", err);
+        myHistoryList.innerHTML = `<div class="list-placeholder error">${err.message}</div>`;
     }
 }
 
@@ -334,6 +359,9 @@ backToAppBtn.addEventListener('click', () => {
     showView('app-container');
 });
 backToFriendsBtn.addEventListener('click', () => showView('friends-container'));
+
+showHistoryBtn.addEventListener('click', handleShowMyHistory);
+backToAppFromHistoryBtn.addEventListener('click', () => showView('app-container'));
 
 // Live Search
 searchInput.addEventListener('input', debounce(handleLiveSearch, 300));
