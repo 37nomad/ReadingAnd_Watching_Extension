@@ -30,6 +30,7 @@ exports.addData = async (req, res) => {
 			title,
 			url,
 			summary,
+			createdAt: new Date(),
 		};
 		user.data.push(newDataEntry);
 
@@ -79,8 +80,12 @@ exports.getData = async (req, res) => {
 			});
 		}
 
-		// 4. If authorized, send the data
-		res.json({ data: targetUser.data });
+		// 4. If authorized, send the data(sorted by createdAt in descending order)
+		const sortedData = targetUser.data
+			.slice()
+			.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+		res.json({ data: sortedData });
 	} catch (error) {
 		console.error("Get data error:", error);
 		res.status(500).json({ error: "Server error while fetching data" });

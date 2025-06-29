@@ -19,7 +19,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendsRouter);
 app.use("/api/data", dataRoutes);
-app.use("/api/users", userSearchRoutes); 
+app.use("/api/users", userSearchRoutes);
 
 // Test protected route
 app.get("/api/test-auth", authenticateToken, (req, res) => {
