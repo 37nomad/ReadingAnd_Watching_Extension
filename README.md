@@ -21,7 +21,7 @@ The browser extension identifies significant content during your browsing sessio
 * **Backend:** Node.js, Express.js (API for user management, friendships, and data storage)
 * **Frontend (Extension):** JavaScript, HTML, CSS
 * **AI:** [WebLLM](https://github.com/mlc-ai/web-llm) running `Llama-3.2-1B-Instruct-q4f16_1-MLC`.
-* **Database:** MongoDB (or other databases like PostgreSQL, Firebase)
+* **Database:** MongoDB
 
 ## Getting Started: Setup and Installation
 
@@ -32,13 +32,14 @@ Follow these instructions to get the project running on your local machine. The 
 Please ensure you have the following installed:
 * [Node.js](https://nodejs.org/) (which includes npm)
 * [Git](https://git-scm.com/)
+* [Google Chrome](https://www.google.com/chrome/)
 
 ### 1. Clone the Repository
 
 Start by cloning the project repository to your computer.
 ```bash
-git clone [https://github.com/your-username/your-repository-name.git](https://github.com/your-username/your-repository-name.git)
-cd your-repository-name
+git clone https://github.com/37nomad/ReadingAnd_Watching_Extension.git
+cd ReadingAnd_Watching_Extension
 ```
 
 ### 2. Configure and Run the Backend
@@ -56,7 +57,7 @@ The backend server is responsible for managing user data and API requests for th
     ```
     Open the `.env` file and add the following variables. Replace the placeholder values with your actual configuration details.
     ```env
-    PORT=3000
+    PORT=5000
     MONGODB_URI=your_mongodb_connection_string
     JWT_SECRET=your_super_secret_jwt_key
     ```
@@ -68,7 +69,7 @@ The backend server is responsible for managing user data and API requests for th
     ```bash
     npm run dev
     ```
-    The backend server will now be running on the port you specified (e.g., `http://localhost:3000`).
+    The backend server will now be running on the port you specified (e.g., `http://localhost:5000`).
 
 ### 3. Build the Chrome Extension
 
