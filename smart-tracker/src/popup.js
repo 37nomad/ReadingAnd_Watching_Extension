@@ -256,7 +256,12 @@ async function handleLiveSearch() {
     searchResults.innerHTML = `<div class="list-placeholder">Searching...</div>`;
     try {
         const data = await apiRequest(`/users/search?q=${encodeURIComponent(query)}`);
-        renderSearchResults(data.users);
+        const { user } = await chrome.storage.local.get('user');
+
+        // Filter out current user from results
+        const filteredUsers = data.users.filter(u => u.username !== user.username);
+
+        renderSearchResults(filteredUsers);
     } catch (err) {
         console.error("Search failed:", err.message);
         searchResults.innerHTML = `<div class="list-placeholder">Error searching.</div>`;
