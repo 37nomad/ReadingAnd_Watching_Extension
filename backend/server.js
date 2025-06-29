@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const friendsRouter = require("./routes/friends");
+const dataRoutes = require("./routes/dataRoutes");
 const { authenticateToken } = require("./middlewares/auth");
 const userSearchRoutes = require("./routes/userSearchRoutes");
 const User = require("./models/User");
@@ -17,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendsRouter);
+app.use("/api/data", dataRoutes);
 app.use("/api/users", userSearchRoutes); 
 
 // Test protected route
