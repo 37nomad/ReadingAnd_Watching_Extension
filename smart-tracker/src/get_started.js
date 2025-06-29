@@ -81,7 +81,7 @@ async function postDataToBackend(title, url, summary) {
         }
 
         // 2. Make the POST request to your backend
-        const response = await fetch("http://localhost:5000/api/data", {
+        const response = await fetch("http://localhost:6969/api/data", {
             method: "POST",
             headers: {
                 // Set headers for JSON content and authentication
