@@ -1,46 +1,108 @@
-# Reading List Website
---Description--
+# Smart Tracker
 
-## Prerequisites
-Before you begin, ensure you have the following installed:
-#### 1. Node.js (which includes npm)
-#### 2. Google Chrome
+Smart Tracker is a browser extension designed to help you build a private digital library of the content you consume online. It automatically logs the articles you read and videos you watch, using a local AI model to summarize them. You can then share your intellectual journey with friends you connect with.
 
-## Getting Started
-Follow these instructions to get the project up and running on your local machine.
+## Overview
+
+We all consume a vast amount of information online, but keeping a meaningful record of it is a challenge. Smart Tracker was created to solve this by providing an effortless way to curate your most insightful readings and viewings without any manual work.
+
+The browser extension identifies significant content during your browsing sessions. A lightweight, privacy-preserving AI model running directly in your browser then summarizes this content and adds it to your personal library. This library is private by default but can be shared with friends. The sharing model is based on mutual consent: once two users accept each other's friend request, they can view each other's libraries.
+
+## Core Features
+
+* **Automated Content Logging:** The extension seamlessly tracks relevant articles and videos in the background.
+* **AI-Powered Curation:** A local, in-browser language model analyzes and selects meaningful content.
+* **Automatic Summaries:** Key insights from your content are condensed into brief summaries.
+* **Private Friend-Based Sharing:** Your curated library is private. You can send and receive friend requests, and only upon mutual acceptance can you and a friend view each other's libraries.
+* **Privacy-Focused:** All AI analysis happens locally in your browser, and your library is only shared with friends you approve.
+
+## Technical Details
+
+* **Backend:** Node.js, Express.js (API for user management, friendships, and data storage)
+* **Frontend (Extension):** JavaScript, HTML, CSS
+* **AI:** [WebLLM](https://github.com/mlc-ai/web-llm) running `Llama-3.2-1B-Instruct-q4f16_1-MLC`.
+* **Database:** MongoDB (or other databases like PostgreSQL, Firebase)
+
+## Getting Started: Setup and Installation
+
+Follow these instructions to get the project running on your local machine. The backend is required to handle user accounts, friendships, and data persistence for the extension.
+
+### Prerequisites
+
+Please ensure you have the following installed:
+* [Node.js](https://nodejs.org/) (which includes npm)
+* [Git](https://git-scm.com/)
 
 ### 1. Clone the Repository
-First, clone this repository to your local machine.
 
-`git clone https://github.com/37nomad/ReadingAnd_Watching_Extension.git`
+Start by cloning the project repository to your computer.
+```bash
+git clone [https://github.com/your-username/your-repository-name.git](https://github.com/your-username/your-repository-name.git)
+cd your-repository-name
+```
 
-`cd ./ReadingAnd_Watching_Extension`
+### 2. Configure and Run the Backend
 
-### 2. Start the Backend Server
-The backend server handles the core logic.
+The backend server is responsible for managing user data and API requests for the extension.
 
-Navigate to the backend directory :
+1.  **Navigate to the backend directory:**
+    ```bash
+    cd backend
+    ```
+2.  **Create an Environment File:**
+    Before installing dependencies, create a `.env` file in the `backend` directory. This file will store your environment variables.
+    ```bash
+    touch .env
+    ```
+    Open the `.env` file and add the following variables. Replace the placeholder values with your actual configuration details.
+    ```env
+    PORT=3000
+    MONGODB_URI=your_mongodb_connection_string
+    JWT_SECRET=your_super_secret_jwt_key
+    ```
+3.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+4.  **Start the Server:**
+    ```bash
+    npm run dev
+    ```
+    The backend server will now be running on the port you specified (e.g., `http://localhost:3000`).
 
-`cd ./backend`
+### 3. Build the Chrome Extension
 
-Install the necessary dependencies :
+The `smart-tracker` folder contains the source code for the browser extension.
 
-`npm install`
+1.  **Navigate to the extension directory** (from the project's root folder):
+    ```bash
+    cd ../smart-tracker
+    ```
+2.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Build the Extension:**
+    ```bash
+    npm run build
+    ```
+    This command creates a `dist` folder containing the production-ready files for the extension.
 
-Start the development server :
+### 4. Load the Extension in Chrome
 
-`npm run dev`
+Finally, load the built extension into your browser.
 
-The server should now be running, typically on localhost:3000 or a similar port. Check your terminal for the exact URL.
-### 3. Run the Chrome Extension
-To use the extension, you need to load it into Chrome in developer mode.
+1.  Open Chrome and go to `chrome://extensions`.
+2.  Enable **Developer mode** in the top-right corner.
+3.  Click **Load unpacked**.
+4.  Select the `smart-tracker/dist` folder from your project directory.
 
-Open Google Chrome and navigate to `chrome://extensions`.
+The Smart Tracker extension will now be active in your browser and connected to your local backend.
 
-Enable Developer mode by using the toggle switch in the top-right corner.
+## How to Contribute
 
-Click the Load unpacked button that appears.
+We welcome contributions. If you'd like to improve Smart Tracker, please feel free to fork the repository, make your changes, and submit a pull request.
 
-In the file selection dialog, select the extension folder from the project's root directory.
+## License
 
-The extension is now installed and ready to use! You should see its icon in your browser's toolbar.
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
