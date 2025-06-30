@@ -100,6 +100,10 @@ Finally, load the built extension into your browser.
 
 The Smart Tracker extension will now be active in your browser and connected to your local backend.
 
+### 5. Debugging of LLM's Output
+
+1.  We can check it in the devtools of the browser regarding the model downloading or model loading from browser storage cache or the output generation i.e Summary.
+
 ## How to Contribute
 
 We welcome contributions. If you'd like to improve Smart Tracker, please feel free to fork the repository, make your changes, and submit a pull request.
