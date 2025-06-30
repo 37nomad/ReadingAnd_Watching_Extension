@@ -75,7 +75,13 @@ The backend server is responsible for managing user data and API requests for th
 
 The `smart-tracker` folder contains the source code for the browser extension.
 
-For quick testing of the extension comment out the Line no 492 in content.js file (Guidelines have been provided there)
+**Note for Quick Testing:**
+
+To reduce the inference time from 3 minutes to 15 seconds for quick testing, you can do the following:
+
+Comment out Line 492 in the content.js file.
+
+(Refer to the guidelines provided in the file for more details.)
 
 1.  **Navigate to the extension directory** (from the project's root folder):
     ```bash
