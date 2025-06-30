@@ -75,6 +75,8 @@ The backend server is responsible for managing user data and API requests for th
 
 The `smart-tracker` folder contains the source code for the browser extension.
 
+For quick testing of the extension comment out the Line no 492 in content.js file (Guidelines have been provided there)
+
 1.  **Navigate to the extension directory** (from the project's root folder):
     ```bash
     cd ../smart-tracker
