@@ -556,7 +556,7 @@
 							? Date.now()
 							: null;
 
-					console.log("Waiting 15s after SPA navigation...");
+					console.log("Waiting after SPA navigation...");
 				}
 			});
 
